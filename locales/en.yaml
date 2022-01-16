@@ -1,0 +1,57 @@
+name: English
+language: Please, select the language
+language_selected: <b>This bot</b> now speaks English.
+help: >
+  <b>Wakyy Bot</b> to resque your morning!
+  
+  Run <code>/start</code> to start the bot.
+
+welcome_message: >
+  WakyyBot helps you to save you morning and wake up earlier 🌅
+  
+  Please provide target wake-up time as <code>15:05</code> or simply as <code>1505</code>.
+progress: >
+  You are doing great for <b>${days}</b> days.
+
+target_save_success: >
+  The target wake-up time ${timestamp} has been successfully recorded! 
+  
+  \nThe second and the last question - what is your current time? Wakyy needs to determine your timezone. Please provide your current time as <code>1505</code> or simply the number of hours <code>15</code>
+target_save_failure: >
+  Sorry, I didn't recognize the target time. Please provide target wake-up time as <code>15:05</code> or simply as <code>1505</code>.
+target_provide: >
+  Please provide target wake-up time as <code>15:05</code> or simply as <code>1505</code>.
+
+timezone_save_success: >
+  All good, <b>Wakyy</b> will notify you at <b>${timestamp}</b> and ask whether you woke up as planned! See you :)
+timezone_save_failure: >
+  Sorry, I wasn't able to determine the timezone. Please provide your current time as <code>1505</code> or simply the number of hours <code>15</code>.
+timezone_provide: >
+  Please provide your current time as <code>1505</code> or simply the number of hours <code>15</code>.
+
+main_menu_title_set: >
+  Wake-up target: ${timestamp}.
+main_menu_title_unset: >
+  Wake-up target is not set.
+main_menu_button_set_target: >
+  Set target wake-up time
+main_menu_button_progress: >
+  Display progress
+main_menu_button_restart: >
+  Restart the bot
+
+did_keyboard_title: > 
+  Did you wake-up in time?
+did_keyboard_button_did: > 
+  Yes, I did! 🔥
+did_keyboard_button_didnt: > 
+  No, I didn't 🙈 
+  
+
+today_did: >
+  Congrats, you rock! You are doing great for last <b>${days}</b> days.
+today_didnt: > 
+  Oops, the successful row of <b>${days}</b> days has been broken. No worries, tomorrow is a new day and this time is going to be different.
+today_never_did: >
+  OK, tomorrow is a new day and this time is going to be different.
+

@@ -1,0 +1,56 @@
+Index: src/app.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import 'module-alias/register'\nimport 'reflect-metadata'\nimport 'source-map-support/register'\n\nimport { ignoreOld, sequentialize } from 'grammy-middlewares'\nimport { run } from '@grammyjs/runner'\nimport attachUser from '~/middlewares/attachUser'\nimport bot from '~/helpers/bot'\nimport configureI18n from '~/middlewares/configureI18n'\nimport env from '~/helpers/env'\nimport handleLanguage from '~/handlers/language'\nimport i18n from '~/helpers/i18n'\nimport languageMenu from '~/menus/language'\nimport sendHelp from '~/handlers/help'\nimport startMongo from '~/helpers/startMongo'\n\nimport { webhookCallback } from 'grammy'\nimport express from 'express'\n\nconst incorrectTimestamp =\n  'Please provide timestamp in a form `10:05` or simply as `1005`'\n\nasync function runApp() {\n  console.log('Starting app...')\n  // Mongo\n  await startMongo()\n  console.log('Mongo connected')\n  bot\n    // Middlewares\n    .use(sequentialize())\n    .use(ignoreOld())\n    .use(attachUser)\n    .use(i18n.middleware())\n    .use(configureI18n)\n    // Menus\n    .use(languageMenu)\n  // Commands\n  bot.command(['help', 'start'], sendHelp)\n  bot.command('language', handleLanguage)\n\n  bot.command('target', async (ctx) => {\n    const input = ctx.match\n\n    const date = parseTimestamp(input)\n    if (!date) {\n      return ctx.reply(\n        'Please provide target wake-up time as `/target 10:05` or simply as `/target 1005`'\n      )\n    }\n\n    const res = await ctx.dbuser\n      .updateOne({\n        target: date,\n      })\n      .exec()\n\n    console.log('saving target: ', res)\n\n    await ctx.reply(\n      `Successfully saved target time ${date.getHours()}:${date\n        .getMinutes()\n        .toString()\n        .padStart(2, '0')}`\n    )\n  })\n\n  bot.command('today', async (ctx) => {\n    const input = ctx.match\n\n    const wakeDate = parseTimestamp(input)\n    if (!wakeDate) {\n      return ctx.reply(\n        \"Please record today's wake-up time as `/today 10:05` or simply as `/today 1005`\"\n      )\n    }\n\n    const targetDate = ctx.dbuser.target\n\n    if (!targetDate) {\n      await ctx.reply(\n        'Please specify the target time first with `/target` command'\n      )\n      return\n    }\n\n    const success = hasSucceed(targetDate, wakeDate)\n    if (success) {\n      const days = ctx.dbuser.days + 1\n      const res = await ctx.dbuser.updateOne({ days }).exec()\n      console.log('saving days: ', res)\n      await ctx.reply(\n        `Congrats, you rock! You are doing great for last ${days}`\n      )\n      return\n    } else {\n      const days = ctx.dbuser.days\n      const res = await ctx.dbuser.updateOne({ days: 0 }).exec()\n      console.log('saving days: ', res)\n      await ctx.reply(\n        `Oops, the successful row of ${days} days has been broken. No worries, tomorrow is a new day and this time is going to be different.`\n      )\n      return\n    }\n  })\n\n  bot.command('progress', (ctx) => {\n    const days = ctx.dbuser.days\n    void ctx.reply(`You are doing great for ${days} days`)\n  })\n\n  // Errors\n  bot.catch(console.error)\n  // Start bot\n  await bot.init()\n  await bot.api.setMyCommands([\n    { command: 'target', description: 'Set wake up target' },\n    { command: 'today', description: \"Record today's wake up time\" },\n    { command: 'progress', description: 'Show progress' },\n    { command: 'help', description: 'Show help' },\n  ])\n\n  runBot(bot)\n  console.info(`Bot ${bot.botInfo.username} is up and running`)\n}\n\nfunction runBot(b: typeof bot) {\n  if (!env.DOMAIN) {\n    run(b)\n    console.info('Starting bot in a long-pull mode')\n  } else {\n    const app = express()\n\n    app.use(express.json())\n    app.use(`/${env.TOKEN}`, webhookCallback(bot, 'express'))\n\n    app.listen(env.PORT, async () => {\n      await bot.api.setWebhook(`https://${env.DOMAIN}/${env.TOKEN}`)\n    })\n    console.info('Starting bot in a webhook mode')\n  }\n}\n\nfunction hasSucceed(target: Date, actual: Date) {\n  if (actual.getHours() < target.getHours()) {\n    return true\n  }\n  if (\n    actual.getHours() == target.getHours() &&\n    actual.getMinutes() <= target.getMinutes()\n  ) {\n    return true\n  }\n}\n\nfunction parseTimestamp(input: string) {\n  const data = input.replace(':', '')\n  let hours, minutes\n\n  if (data.length == 4) {\n    // 1000\n    hours = data.slice(0, 2)\n    minutes = data.slice(2)\n  } else if (data.length == 3) {\n    // 900\n    hours = data.slice(0, 1)\n    minutes = data.slice(1)\n  } else {\n    return null\n  }\n\n  const date = new Date()\n\n  try {\n    date.setHours(parseInt(hours), parseInt(minutes))\n  } catch (e) {\n    console.log('failed to parse timestamp ', e)\n    return null\n  }\n\n  return date\n}\n\nvoid runApp()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/app.ts b/src/app.ts
+--- a/src/app.ts	(revision 42affb8d93fb4f122baa2b1efca83513b921045c)
++++ b/src/app.ts	(date 1643266250506)
+@@ -14,11 +14,25 @@
+ import sendHelp from '~/handlers/help'
+ import startMongo from '~/helpers/startMongo'
+ 
+-import { webhookCallback } from 'grammy'
++import { Context, webhookCallback } from 'grammy'
++import { Menu } from '@grammyjs/menu'
+ import express from 'express'
+ 
+-const incorrectTimestamp =
+-  'Please provide timestamp in a form `10:05` or simply as `1005`'
++async function setTime(ctx: Context) {
++  await ctx.reply(
++    'Please provide a target wake-up time as `/target 10:05` or simply `/target 1005`'
++  )
++}
++
++// raw update {command: target, text: someText}
++
++const menu = new Menu('my-menu-identifier')
++  .text('Set target wake-up time', setTime)
++  .row()
++  .text("Record today's wake-up time", (ctx) => ctx.reply('You pressed B!'))
++  .row()
++  .text('See your progress', (ctx) => ctx.reply('You pressed B!'))
++  .row()
+ 
+ async function runApp() {
+   console.log('Starting app...')
+@@ -34,9 +48,14 @@
+     .use(configureI18n)
+     // Menus
+     .use(languageMenu)
++    .use(menu)
++
+   // Commands
+-  bot.command(['help', 'start'], sendHelp)
+-  bot.command('language', handleLanguage)
++  bot.command(['help'], sendHelp)
++
++  bot.command('start', async (ctx) => {
++    await ctx.reply('Select command', { reply_markup: menu })
++  })
+ 
+   bot.command('target', async (ctx) => {
+     const input = ctx.match

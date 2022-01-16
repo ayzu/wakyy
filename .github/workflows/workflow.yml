@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+
+jobs:
+
+  build:
+    name: Build and push
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout main
+        uses: actions/checkout@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Install node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 17
+
+      - name: Compile JS
+        run: npm install && make build
+
+      - name: Push image
+        run: make docker-push
+
+      - name: Deploy image
+        uses: appleboy/ssh-action@master
+        env:
+          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            echo $(whoami)
+            docker stop wakyy || true
+            docker rm --force wakyy || true
+            docker run --restart unless-stopped --detach --name=wakyy --env-file=/home/.env --pull=always registry.digitalocean.com/ayzu/wakyy
+
+            

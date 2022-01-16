@@ -1,0 +1,198 @@
+Index: src/app.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import 'module-alias/register'\nimport 'reflect-metadata'\nimport 'source-map-support/register'\n\nimport { ignoreOld, sequentialize } from 'grammy-middlewares'\nimport { run } from '@grammyjs/runner'\nimport attachUser from '@/middlewares/attachUser'\nimport bot from '@/helpers/bot'\nimport configureI18n from '@/middlewares/configureI18n'\nimport env from '@/helpers/env'\nimport handleLanguage from '@/handlers/language'\nimport i18n from '@/helpers/i18n'\nimport languageMenu from '@/menus/language'\nimport sendHelp from '@/handlers/help'\nimport startMongo from '@/helpers/startMongo'\n\nimport { webhookCallback } from 'grammy'\nimport express from 'express'\n\nconst incorrectTimestamp =\n  'Please provide timestamp in a form `10:05` or simply as `1005`'\n\nasync function runApp() {\n  console.log('Starting app...')\n  // Mongo\n  await startMongo()\n  console.log('Mongo connected')\n  bot\n    // Middlewares\n    .use(sequentialize())\n    .use(ignoreOld())\n    .use(attachUser)\n    .use(i18n.middleware())\n    .use(configureI18n)\n    // Menus\n    .use(languageMenu)\n  // Commands\n  bot.command(['help', 'start'], sendHelp)\n  bot.command('language', handleLanguage)\n\n  bot.command('target', async (ctx) => {\n    const input = ctx.match\n\n    const date = parseTimestamp(input)\n    if (!date) {\n      return ctx.reply(\n        'Please provide target wake-up time as `/target 10:05` or simply as `/target 1005`'\n      )\n    }\n\n    const res = await ctx.dbuser\n      .updateOne({\n        target: date,\n      })\n      .exec()\n\n    console.log('saving target: ', res)\n\n    await ctx.reply(\n      `Successfully saved target time ${date.getHours()}:${date\n        .getMinutes()\n        .toString()\n        .padStart(2, '0')}`\n    )\n  })\n\n  bot.command('today', async (ctx) => {\n    const input = ctx.match\n\n    const wakeDate = parseTimestamp(input)\n    if (!wakeDate) {\n      return ctx.reply(\n        \"Please record today's wake-up time as `/today 10:05` or simply as `/today 1005`\"\n      )\n    }\n\n    const targetDate = ctx.dbuser.target\n\n    if (!targetDate) {\n      await ctx.reply(\n        'Please specify the target time first with `/target` command'\n      )\n      return\n    }\n\n    const success = hasSucceed(targetDate, wakeDate)\n    if (success) {\n      const days = ctx.dbuser.days + 1\n      const res = await ctx.dbuser.updateOne({ days }).exec()\n      console.log('saving days: ', res)\n      await ctx.reply(\n        `Congrats, you rock! You are doing great for last ${days}`\n      )\n      return\n    } else {\n      const days = ctx.dbuser.days\n      const res = await ctx.dbuser.updateOne({ days: 0 }).exec()\n      console.log('saving days: ', res)\n      await ctx.reply(\n        `Oops, the successful row of ${days} days has been broken. No worries, tomorrow is a new day and this time is going to be different.`\n      )\n      return\n    }\n  })\n\n  bot.command('progress', (ctx) => {\n    const days = ctx.dbuser.days\n    void ctx.reply(`You are doing great for ${days} days`)\n  })\n\n  // Errors\n  bot.catch(console.error)\n  // Start bot\n  await bot.init()\n  await bot.api.setMyCommands([\n    { command: 'target', description: 'Set wake up target' },\n    { command: 'today', description: \"Record today's wake up time\" },\n    { command: 'progress', description: 'Show progress' },\n    { command: 'help', description: 'Show help' },\n  ])\n\n  runBot(bot)\n  console.info(`Bot ${bot.botInfo.username} is up and running`)\n}\n\nfunction runBot(b: typeof bot) {\n  if (!env.DOMAIN) {\n    run(b)\n  } else {\n    const app = express()\n\n    app.use(express.json())\n    app.use(`/${env.TOKEN}`, webhookCallback(bot, 'express'))\n\n    app.listen(env.PORT, async () => {\n      await bot.api.setWebhook(`https://${env.DOMAIN}/${env.TOKEN}`)\n    })\n  }\n}\n\nfunction hasSucceed(target: Date, actual: Date) {\n  if (actual.getHours() < target.getHours()) {\n    return true\n  }\n  if (\n    actual.getHours() == target.getHours() &&\n    actual.getMinutes() <= target.getMinutes()\n  ) {\n    return true\n  }\n}\n\nfunction parseTimestamp(input: string) {\n  const data = input.replace(':', '')\n  let hours, minutes\n\n  if (data.length == 4) {\n    // 1000\n    hours = data.slice(0, 2)\n    minutes = data.slice(2)\n  } else if (data.length == 3) {\n    // 900\n    hours = data.slice(0, 1)\n    minutes = data.slice(1)\n  } else {\n    return null\n  }\n\n  const date = new Date()\n\n  try {\n    date.setHours(parseInt(hours), parseInt(minutes))\n  } catch (e) {\n    console.log('failed to parse timestamp ', e)\n    return null\n  }\n\n  return date\n}\n\nvoid runApp()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/app.ts b/src/app.ts
+--- a/src/app.ts	(revision cc75410cf9740cd93071aea703b943b31a166c37)
++++ b/src/app.ts	(date 1643106120382)
+@@ -125,6 +125,7 @@
+ 
+ function runBot(b: typeof bot) {
+   if (!env.DOMAIN) {
++    console.info('Starting bot in a long-pull mode')
+     run(b)
+   } else {
+     const app = express()
+@@ -135,6 +136,7 @@
+     app.listen(env.PORT, async () => {
+       await bot.api.setWebhook(`https://${env.DOMAIN}/${env.TOKEN}`)
+     })
++    console.log('Starting bot as webhook')
+   }
+ }
+ 
+Index: Procfile
+===================================================================
+diff --git a/Procfile b/Procfile
+deleted file mode 100644
+--- a/Procfile	(revision cc75410cf9740cd93071aea703b943b31a166c37)
++++ /dev/null	(revision cc75410cf9740cd93071aea703b943b31a166c37)
+@@ -1,1 +0,0 @@
+-web: node dist/app.js
+\ No newline at end of file
+Index: tsconfig.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"target\": \"es6\",\n    \"lib\": [\"es2015\"],\n    \"moduleResolution\": \"node\",\n    \"sourceMap\": true,\n    \"outDir\": \"dist\",\n    \"baseUrl\": \"src\",\n    \"paths\": {\n      \"@/*\": [\"*\"]\n    },\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"strict\": true,\n    \"allowSyntheticDefaultImports\": true\n  },\n  \"include\": [\"src/**/*\"]\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tsconfig.json b/tsconfig.json
+--- a/tsconfig.json	(revision cc75410cf9740cd93071aea703b943b31a166c37)
++++ b/tsconfig.json	(date 1643106792914)
+@@ -8,7 +8,7 @@
+     "outDir": "dist",
+     "baseUrl": "src",
+     "paths": {
+-      "@/*": ["*"]
++      "~/*": ["*"]
+     },
+     "emitDecoratorMetadata": true,
+     "experimentalDecorators": true,
+Index: Makefile
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>build:\n\tdocker build . -t ayzu/wakyy\n\nrun-local: build\n\tdocker run --env-file=.env --rm -it ayzu/wakyy\n\nrun-server:\n\tdocker run --name=wakyy --rm -it --env-file=/home/.env ffadbc4f67e2\n\npush:\n\tdocker tag ayzu/wakyy registry.digitalocean.com/ayzu/wakyy && docker push registry.digitalocean.com/ayzu/wakyy\n\npush-env:\n\tscp .env root@188.166.7.87:/root\n\nlogin:\n\tssh root@188.166.7.87\n\nregistry-login:\n\tdocker login registry.digitalocean.com\n\npull:\n\tdocker pull registry.digitalocean.com/ayzu/wakyy\n\ninspect:\n\tdocker history --human --format \"{{.CreatedBy}}: {{.Size}}\" ayzu/wakyy\n\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Makefile b/Makefile
+--- a/Makefile	(revision cc75410cf9740cd93071aea703b943b31a166c37)
++++ b/Makefile	(date 1643104630353)
+@@ -1,14 +1,14 @@
+ build:
+-	docker build . -t ayzu/wakyy
++	docker build . -t wakyy
+ 
+-run-local: build
+-	docker run --env-file=.env --rm -it ayzu/wakyy
++build-server:
++	docker build registry.digitalocean.com/ayzu/wakyy --pull -t wakyy
+ 
+-run-server:
+-	docker run --name=wakyy --rm -it --env-file=/home/.env ffadbc4f67e2
++run: build
++	docker run --name=wakyy --rm -it --env-file=.env wakyy
+ 
+ push:
+-	docker tag ayzu/wakyy registry.digitalocean.com/ayzu/wakyy && docker push registry.digitalocean.com/ayzu/wakyy
++	docker tag wakyy registry.digitalocean.com/ayzu/wakyy && docker push registry.digitalocean.com/ayzu/wakyy
+ 
+ push-env:
+ 	scp .env root@188.166.7.87:/root
+@@ -23,6 +23,6 @@
+ 	docker pull registry.digitalocean.com/ayzu/wakyy
+ 
+ inspect:
+-	docker history --human --format "{{.CreatedBy}}: {{.Size}}" ayzu/wakyy
++	docker history --human --format "{{.CreatedBy}}: {{.Size}}" wakyy
+ 
+ 
+Index: src/handlers/help.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import Context from '@/models/Context'\nimport sendOptions from '@/helpers/sendOptions'\n\nexport default function handleHelp(ctx: Context) {\n  return ctx.replyWithLocalization('help', sendOptions(ctx))\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/handlers/help.ts b/src/handlers/help.ts
+--- a/src/handlers/help.ts	(revision cc75410cf9740cd93071aea703b943b31a166c37)
++++ b/src/handlers/help.ts	(date 1643106823677)
+@@ -1,4 +1,4 @@
+-import Context from '@/models/Context'
++import Context from '~/models/Context'
+ import sendOptions from '@/helpers/sendOptions'
+ 
+ export default function handleHelp(ctx: Context) {
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"2377f327-adfc-4ad5-be29-260af963ab2a\" name=\"Changes\" comment=\"update help\">\n      <change afterPath=\"$PROJECT_DIR$/.dockerignore\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.yarn/plugins/yarn-up-all-plugin.cjs\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.yarn/releases/yarn-3.1.0.cjs\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Dockerfile\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Dockerfile\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/Makefile\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Makefile\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/README.md\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/README.md\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/package.json\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/package.json\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/helpers/startMongo.ts\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/helpers/startMongo.ts\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/src/models/User.ts\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/models/User.ts\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/yarn.lock\" beforeDir=\"false\" />\n    </list>\n    <list id=\"3b59ee6e-3579-4b07-b2ce-38c30cdb576f\" name=\"menu\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/src/app.ts\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/app.ts\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"23ocUAbPps0PgPhCDk2rOs7CnXp\" />\n  <component name=\"ProjectLevelVcsManager\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">\n    <property name=\"ASKED_MARK_IGNORED_FILES_AS_EXCLUDED\" value=\"true\" />\n    <property name=\"DatabaseDriversLRU\" value=\"mongo\" />\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\n    <property name=\"WebServerToolWindowFactoryState\" value=\"false\" />\n    <property name=\"last_opened_file_path\" value=\"$PROJECT_DIR$\" />\n    <property name=\"node.js.detected.package.eslint\" value=\"true\" />\n    <property name=\"node.js.detected.package.standard\" value=\"true\" />\n    <property name=\"node.js.detected.package.tslint\" value=\"true\" />\n    <property name=\"node.js.selected.package.eslint\" value=\"(autodetect)\" />\n    <property name=\"node.js.selected.package.standard\" value=\"\" />\n    <property name=\"node.js.selected.package.tslint\" value=\"(autodetect)\" />\n    <property name=\"nodejs_package_manager_path\" value=\"yarn\" />\n    <property name=\"settings.editor.selected.configurable\" value=\"settings.javascript.linters.eslint\" />\n    <property name=\"ts.external.directory.path\" value=\"$PROJECT_DIR$/node_modules/typescript/lib\" />\n    <property name=\"vue.rearranger.settings.migration\" value=\"true\" />\n  </component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$\" />\n    </key>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"2377f327-adfc-4ad5-be29-260af963ab2a\" name=\"Changes\" comment=\"\" />\n      <changelist id=\"3b59ee6e-3579-4b07-b2ce-38c30cdb576f\" name=\"menu\" comment=\"\" />\n      <created>1642403893151</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1642403893151</updated>\n      <workItem from=\"1642403894262\" duration=\"2260000\" />\n      <workItem from=\"1642406838535\" duration=\"482000\" />\n      <workItem from=\"1642407370864\" duration=\"634000\" />\n      <workItem from=\"1642777477535\" duration=\"1663000\" />\n      <workItem from=\"1642879515865\" duration=\"11710000\" />\n      <workItem from=\"1642949157583\" duration=\"1126000\" />\n      <workItem from=\"1642950351037\" duration=\"12362000\" />\n      <workItem from=\"1643095830379\" duration=\"5845000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"idea reinit\">\n      <created>1642403928949</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642403928949</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"eslint\">\n      <created>1642404884035</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642404884035</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"local run under condition\">\n      <created>1642405297137</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642405297137</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"heroku setup\">\n      <created>1642405852405</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642405852405</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\"Dockerfile\">\n      <created>1642925911017</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642925911017</updated>\n    </task>\n    <task id=\"LOCAL-00006\" summary=\"add help command\">\n      <created>1642964452719</created>\n      <option name=\"number\" value=\"00006\" />\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642964452719</updated>\n    </task>\n    <task id=\"LOCAL-00007\" summary=\"add Makefile\">\n      <created>1642971413665</created>\n      <option name=\"number\" value=\"00007\" />\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642971413665</updated>\n    </task>\n    <task id=\"LOCAL-00008\" summary=\"update help\">\n      <created>1642971690319</created>\n      <option name=\"number\" value=\"00008\" />\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642971690319</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"9\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"idea reinit\" />\n    <MESSAGE value=\"eslint\" />\n    <MESSAGE value=\"local run under condition\" />\n    <MESSAGE value=\"heroku setup\" />\n    <MESSAGE value=\"Dockerfile\" />\n    <MESSAGE value=\"add help command\" />\n    <MESSAGE value=\"add Makefile\" />\n    <MESSAGE value=\"update help\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"update help\" />\n  </component>\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\n    <expand />\n    <select />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision cc75410cf9740cd93071aea703b943b31a166c37)
++++ b/.idea/workspace.xml	(date 1643106923579)
+@@ -4,18 +4,13 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="2377f327-adfc-4ad5-be29-260af963ab2a" name="Changes" comment="update help">
+-      <change afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
++    <list default="true" id="2377f327-adfc-4ad5-be29-260af963ab2a" name="Changes" comment="multistage docker, switch to npm">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.yarn/plugins/yarn-up-all-plugin.cjs" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.yarn/releases/yarn-3.1.0.cjs" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/helpers/startMongo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/helpers/startMongo.ts" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/models/User.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/User.ts" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/Procfile" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.ts" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/handlers/help.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/help.ts" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+     </list>
+     <list id="3b59ee6e-3579-4b07-b2ce-38c30cdb576f" name="menu" comment="">
+       <change beforePath="$PROJECT_DIR$/src/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.ts" afterDir="false" />
+@@ -35,6 +30,19 @@
+       <filtered-out-file-type name="TAG" />
+       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+     </file-type-list>
++  </component>
++  <component name="LineStatusTrackerManager">
++    <file path="$PROJECT_DIR$/src/app.ts">
++      <ranges>
++        <range start1="16" end1="17" start2="16" end2="18" changelist="3b59ee6e-3579-4b07-b2ce-38c30cdb576f" />
++        <range start1="19" end1="21" start2="20" end2="35" changelist="3b59ee6e-3579-4b07-b2ce-38c30cdb576f" />
++        <range start1="36" end1="36" start2="50" end2="52" changelist="3b59ee6e-3579-4b07-b2ce-38c30cdb576f" />
++        <range start1="37" end1="38" start2="53" end2="54" changelist="3b59ee6e-3579-4b07-b2ce-38c30cdb576f" />
++        <range start1="40" end1="40" start2="56" end2="60" changelist="3b59ee6e-3579-4b07-b2ce-38c30cdb576f" />
++        <range start1="127" end1="127" start2="147" end2="148" changelist="2377f327-adfc-4ad5-be29-260af963ab2a" />
++        <range start1="137" end1="137" start2="158" end2="159" changelist="2377f327-adfc-4ad5-be29-260af963ab2a" />
++      </ranges>
++    </file>
+   </component>
+   <component name="MarkdownSettingsMigration">
+     <option name="stateVersion" value="1" />
+@@ -86,7 +94,7 @@
+       <workItem from="1642879515865" duration="11710000" />
+       <workItem from="1642949157583" duration="1126000" />
+       <workItem from="1642950351037" duration="12362000" />
+-      <workItem from="1643095830379" duration="5845000" />
++      <workItem from="1643095830379" duration="9846000" />
+     </task>
+     <task id="LOCAL-00001" summary="idea reinit">
+       <created>1642403928949</created>
+@@ -144,7 +152,14 @@
+       <option name="project" value="LOCAL" />
+       <updated>1642971690319</updated>
+     </task>
+-    <option name="localTasksCounter" value="9" />
++    <task id="LOCAL-00009" summary="multistage docker, switch to npm">
++      <created>1643101776279</created>
++      <option name="number" value="00009" />
++      <option name="presentableId" value="LOCAL-00009" />
++      <option name="project" value="LOCAL" />
++      <updated>1643101776279</updated>
++    </task>
++    <option name="localTasksCounter" value="10" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -170,7 +185,8 @@
+     <MESSAGE value="add help command" />
+     <MESSAGE value="add Makefile" />
+     <MESSAGE value="update help" />
+-    <option name="LAST_COMMIT_MESSAGE" value="update help" />
++    <MESSAGE value="multistage docker, switch to npm" />
++    <option name="LAST_COMMIT_MESSAGE" value="multistage docker, switch to npm" />
+   </component>
+   <component name="XSLT-Support.FileAssociations.UIState">
+     <expand />

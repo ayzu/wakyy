@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="WS-213.6777.57">
+    <data-source name="myFirstDatabase@cluster0.jckt6.mongodb.net" uuid="7fb964e4-9276-4e71-a2ca-dfae0c91b3f0">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MONGO" exact-version="0" />
+      <secret-storage>forget</secret-storage>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" qname="myFirstDatabase" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+  </component>
+</project>

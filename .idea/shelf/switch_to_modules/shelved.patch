@@ -1,0 +1,92 @@
+Index: tsconfig.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"target\": \"es6\",\n    \"lib\": [\"es2015\"],\n    \"moduleResolution\": \"node\",\n    \"sourceMap\": true,\n    \"outDir\": \"dist\",\n    \"baseUrl\": \"src\",\n    \"paths\": {\n      \"~/*\": [\"*\"]\n    },\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"strict\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"skipLibCheck\": true,\n  },\n  \"include\": [\"src/**/*\"]\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tsconfig.json b/tsconfig.json
+--- a/tsconfig.json	(revision e90983b6c9077436fefe04a03c40b1aeadec7e03)
++++ b/tsconfig.json	(date 1643182534580)
+@@ -1,6 +1,6 @@
+ {
+   "compilerOptions": {
+-    "module": "commonjs",
++    "module": "es6",
+     "target": "es6",
+     "lib": ["es2015"],
+     "moduleResolution": "node",
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"2377f327-adfc-4ad5-be29-260af963ab2a\" name=\"Changes\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/Makefile\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Makefile\" afterDir=\"false\" />\n    </list>\n    <list id=\"3196375b-4447-41de-b757-890268851e3d\" name=\"1\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/Procfile\" beforeDir=\"false\" />\n    </list>\n    <list id=\"3b59ee6e-3579-4b07-b2ce-38c30cdb576f\" name=\"menu\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/src/app.ts\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/app.ts\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitSEFilterConfiguration\">\n    <file-type-list>\n      <filtered-out-file-type name=\"LOCAL_BRANCH\" />\n      <filtered-out-file-type name=\"REMOTE_BRANCH\" />\n      <filtered-out-file-type name=\"TAG\" />\n      <filtered-out-file-type name=\"COMMIT_BY_MESSAGE\" />\n    </file-type-list>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"23ocUAbPps0PgPhCDk2rOs7CnXp\" />\n  <component name=\"ProjectLevelVcsManager\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">\n    <property name=\"ASKED_MARK_IGNORED_FILES_AS_EXCLUDED\" value=\"true\" />\n    <property name=\"DatabaseDriversLRU\" value=\"mongo\" />\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\n    <property name=\"WebServerToolWindowFactoryState\" value=\"false\" />\n    <property name=\"last_opened_file_path\" value=\"$PROJECT_DIR$\" />\n    <property name=\"node.js.detected.package.eslint\" value=\"true\" />\n    <property name=\"node.js.detected.package.standard\" value=\"true\" />\n    <property name=\"node.js.detected.package.tslint\" value=\"true\" />\n    <property name=\"node.js.selected.package.eslint\" value=\"(autodetect)\" />\n    <property name=\"node.js.selected.package.standard\" value=\"\" />\n    <property name=\"node.js.selected.package.tslint\" value=\"(autodetect)\" />\n    <property name=\"nodejs_package_manager_path\" value=\"yarn\" />\n    <property name=\"settings.editor.selected.configurable\" value=\"settings.javascript.linters.eslint\" />\n    <property name=\"ts.external.directory.path\" value=\"$PROJECT_DIR$/node_modules/typescript/lib\" />\n    <property name=\"vue.rearranger.settings.migration\" value=\"true\" />\n  </component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$\" />\n    </key>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"2377f327-adfc-4ad5-be29-260af963ab2a\" name=\"Changes\" comment=\"\" />\n      <changelist id=\"3b59ee6e-3579-4b07-b2ce-38c30cdb576f\" name=\"menu\" comment=\"\" />\n      <changelist id=\"3196375b-4447-41de-b757-890268851e3d\" name=\"1\" comment=\"\" />\n      <created>1642403893151</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1642403893151</updated>\n      <workItem from=\"1642403894262\" duration=\"2260000\" />\n      <workItem from=\"1642406838535\" duration=\"482000\" />\n      <workItem from=\"1642407370864\" duration=\"634000\" />\n      <workItem from=\"1642777477535\" duration=\"1663000\" />\n      <workItem from=\"1642879515865\" duration=\"11710000\" />\n      <workItem from=\"1642949157583\" duration=\"1126000\" />\n      <workItem from=\"1642950351037\" duration=\"12362000\" />\n      <workItem from=\"1643095830379\" duration=\"5845000\" />\n      <workItem from=\"1643177078445\" duration=\"4864000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"idea reinit\">\n      <created>1642403928949</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642403928949</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"eslint\">\n      <created>1642404884035</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642404884035</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"local run under condition\">\n      <created>1642405297137</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642405297137</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"heroku setup\">\n      <created>1642405852405</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642405852405</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\"Dockerfile\">\n      <created>1642925911017</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642925911017</updated>\n    </task>\n    <task id=\"LOCAL-00006\" summary=\"add help command\">\n      <created>1642964452719</created>\n      <option name=\"number\" value=\"00006\" />\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642964452719</updated>\n    </task>\n    <task id=\"LOCAL-00007\" summary=\"add Makefile\">\n      <created>1642971413665</created>\n      <option name=\"number\" value=\"00007\" />\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642971413665</updated>\n    </task>\n    <task id=\"LOCAL-00008\" summary=\"update help\">\n      <created>1642971690319</created>\n      <option name=\"number\" value=\"00008\" />\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1642971690319</updated>\n    </task>\n    <task id=\"LOCAL-00009\" summary=\"add ts-node-dev\">\n      <created>1643177251114</created>\n      <option name=\"number\" value=\"00009\" />\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1643177251114</updated>\n    </task>\n    <task id=\"LOCAL-00010\" summary=\"move scripts to Makefile\">\n      <created>1643179689825</created>\n      <option name=\"number\" value=\"00010\" />\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1643179689826</updated>\n    </task>\n    <task id=\"LOCAL-00011\" summary=\"switch from @ to ~ for the root path\">\n      <created>1643181023077</created>\n      <option name=\"number\" value=\"00011\" />\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1643181023077</updated>\n    </task>\n    <task id=\"LOCAL-00012\" summary=\"node . instead of node dist/app.js\">\n      <created>1643182280859</created>\n      <option name=\"number\" value=\"00012\" />\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1643182280859</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"13\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"idea reinit\" />\n    <MESSAGE value=\"eslint\" />\n    <MESSAGE value=\"local run under condition\" />\n    <MESSAGE value=\"heroku setup\" />\n    <MESSAGE value=\"Dockerfile\" />\n    <MESSAGE value=\"add help command\" />\n    <MESSAGE value=\"add Makefile\" />\n    <MESSAGE value=\"update help\" />\n    <MESSAGE value=\"add ts-node-dev\" />\n    <MESSAGE value=\"move scripts to Makefile\" />\n    <MESSAGE value=\"switch from @ to ~ for the root path\" />\n    <MESSAGE value=\"node . instead of node dist/app.js\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"node . instead of node dist/app.js\" />\n  </component>\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\n    <expand />\n    <select />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision e90983b6c9077436fefe04a03c40b1aeadec7e03)
++++ b/.idea/workspace.xml	(date 1643182827161)
+@@ -5,7 +5,9 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="2377f327-adfc-4ad5-be29-260af963ab2a" name="Changes" comment="">
+-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+     </list>
+     <list id="3196375b-4447-41de-b757-890268851e3d" name="1" comment="">
+       <change beforePath="$PROJECT_DIR$/Procfile" beforeDir="false" />
+@@ -81,7 +83,7 @@
+       <workItem from="1642949157583" duration="1126000" />
+       <workItem from="1642950351037" duration="12362000" />
+       <workItem from="1643095830379" duration="5845000" />
+-      <workItem from="1643177078445" duration="4864000" />
++      <workItem from="1643177078445" duration="5227000" />
+     </task>
+     <task id="LOCAL-00001" summary="idea reinit">
+       <created>1642403928949</created>
+@@ -167,7 +169,14 @@
+       <option name="project" value="LOCAL" />
+       <updated>1643182280859</updated>
+     </task>
+-    <option name="localTasksCounter" value="13" />
++    <task id="LOCAL-00013" summary="chore: build before run">
++      <created>1643182482805</created>
++      <option name="number" value="00013" />
++      <option name="presentableId" value="LOCAL-00013" />
++      <option name="project" value="LOCAL" />
++      <updated>1643182482805</updated>
++    </task>
++    <option name="localTasksCounter" value="14" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -197,7 +206,8 @@
+     <MESSAGE value="move scripts to Makefile" />
+     <MESSAGE value="switch from @ to ~ for the root path" />
+     <MESSAGE value="node . instead of node dist/app.js" />
+-    <option name="LAST_COMMIT_MESSAGE" value="node . instead of node dist/app.js" />
++    <MESSAGE value="chore: build before run" />
++    <option name="LAST_COMMIT_MESSAGE" value="chore: build before run" />
+   </component>
+   <component name="XSLT-Support.FileAssociations.UIState">
+     <expand />
+Index: package.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n  \"name\": \"wakyy\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Wake up earlier and boost your productivity!\",\n  \"main\": \"dist/app.js\",\n  \"dependencies\": {\n    \"@grammyjs/i18n\": \"^0.5.0\",\n    \"@grammyjs/menu\": \"^1.0.4\",\n    \"@grammyjs/runner\": \"^1.0.3\",\n    \"@typegoose/typegoose\": \"^9.5.0\",\n    \"dotenv\": \"^10.0.0\",\n    \"envalid\": \"^7.2.2\",\n    \"express\": \"^4.17.2\",\n    \"grammy\": \"^1.5.0\",\n    \"grammy-middlewares\": \"^1.0.11\",\n    \"module-alias\": \"^2.2.2\",\n    \"mongoose\": \"^6.1.8\",\n    \"reflect-metadata\": \"^0.1.13\",\n    \"source-map-support\": \"^0.5.21\"\n  },\n  \"devDependencies\": {\n    \"@types/express\": \"^4.17.13\",\n    \"@types/js-yaml\": \"^4.0.5\",\n    \"@types/node\": \"^17.0.10\",\n    \"@typescript-eslint/eslint-plugin\": \"^5.6.0\",\n    \"@typescript-eslint/parser\": \"^5.6.0\",\n    \"eslint\": \"^8.4.1\",\n    \"eslint-config-prettier\": \"^8.3.0\",\n    \"eslint-plugin-import\": \"^2.25.3\",\n    \"eslint-plugin-no-relative-import-paths\": \"^1.0.8\",\n    \"eslint-plugin-node\": \"^11.1.0\",\n    \"eslint-plugin-prettier\": \"^4.0.0\",\n    \"eslint-plugin-sort-imports-es6-autofix\": \"^0.6.0\",\n    \"js-yaml\": \"^4.1.0\",\n    \"prettier\": \"^2.5.1\",\n    \"ts-node-dev\": \"^1.1.8\",\n    \"tsc-watch\": \"^4.5.0\",\n    \"typescript\": \"^4.5.2\"\n  },\n  \"_moduleAliases\": {\n    \"~\": \"dist\"\n  }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/package.json b/package.json
+--- a/package.json	(revision e90983b6c9077436fefe04a03c40b1aeadec7e03)
++++ b/package.json	(date 1643182534587)
+@@ -3,6 +3,7 @@
+   "version": "1.0.0",
+   "description": "Wake up earlier and boost your productivity!",
+   "main": "dist/app.js",
++  "type": "module",
+   "dependencies": {
+     "@grammyjs/i18n": "^0.5.0",
+     "@grammyjs/menu": "^1.0.4",
