@@ -20,12 +20,7 @@ export async function initBot(collectionUsers: Collection<ISession>) {
       })
     )
     .use(i18n.middleware())
-    .use(ignoreOld())
     .use(mainMenu)
-
-  bot.command('start', handleStart)
-  bot.command('help', handleHelp)
-  bot.command('menu', handleMenu)
 
   bot.callbackQuery('did', async (ctx) => {
     console.info(`-> "did" button`)
@@ -35,6 +30,12 @@ export async function initBot(collectionUsers: Collection<ISession>) {
     console.info(`-> "didnt" button`)
     await updateDays(ctx, false)
   })
+
+  bot.use(ignoreOld())
+
+  bot.command('start', handleStart)
+  bot.command('help', handleHelp)
+  bot.command('menu', handleMenu)
 
   bot.use(router)
 
